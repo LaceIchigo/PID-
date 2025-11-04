@@ -216,7 +216,7 @@ namespace Algorithms.Tools
         #endregion
 
 
-       
+        //adwadwadawdawqdaw
 
         public static int MinError(Image<Gray, byte> inputImage)
         {
