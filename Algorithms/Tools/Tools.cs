@@ -181,7 +181,16 @@ namespace Algorithms.Tools
             
             return result;
         }
-        
+
         #endregion
+
+        public static byte ClipPixel(float value)
+        {
+            if (value > 255)
+                return 255;
+            if (value < 0)
+                return 0;
+            return (byte)(value + .5);
+        }
     }
 }

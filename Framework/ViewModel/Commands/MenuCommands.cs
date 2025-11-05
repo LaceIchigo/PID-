@@ -904,7 +904,48 @@ namespace Framework.ViewModel
                 ProcessedImage = Convert(GrayInitialImage);
             }
         }
-        
+
+        private ICommand _filter1MedianCommand;
+
+        public ICommand Filter1MedianCommand
+        {
+            get
+            {
+                if (_filter1MedianCommand == null)
+                    _filter1MedianCommand = new RelayCommand(Filter1Median);
+                return _filter1MedianCommand;
+            }
+        }
+
+        private void Filter1Median(object parameter)
+        {
+            if (InitialImage == null)
+            {
+                MessageBox.Show("Please add a grayscale image!");
+                return;
+            }
+            ClearProcessedCanvas(parameter as Canvas);
+
+            List<string> labels = new List<string> { "Please enter a kernel size:" };
+
+            DialogWindow msgBox = new DialogWindow(_mainVM, labels);
+            msgBox.ShowDialog();
+
+            List<double> values = msgBox.GetValues();
+            int ksize = (int)(values[0]);
+
+            if (GrayInitialImage != null)
+            {
+                GrayProcessedImage = Filters.MedianFiltering(GrayInitialImage, ksize);
+                ProcessedImage = Convert(GrayProcessedImage);
+            }
+            else if (ColorInitialImage != null)
+            {
+                MessageBox.Show("Please add a grayscale image!");
+            }
+        }
+
+
         #endregion
 
         #region Morphological operations
