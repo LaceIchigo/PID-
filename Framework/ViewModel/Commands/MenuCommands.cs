@@ -936,7 +936,7 @@ namespace Framework.ViewModel
 
             if (GrayInitialImage != null)
             {
-                GrayProcessedImage = Filters.MedianFiltering(GrayInitialImage, ksize);
+                GrayProcessedImage = Filters.ApplyMedianFilter(GrayInitialImage, ksize);
                 ProcessedImage = Convert(GrayProcessedImage);
             }
             else if (ColorInitialImage != null)
