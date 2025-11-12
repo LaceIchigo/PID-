@@ -995,5 +995,77 @@ namespace Framework.ViewModel
             ClearProcessedCanvas(canvases[1] as Canvas);
         }
         #endregion
+
+        private ICommand _sobelDirectionCommand;
+        public ICommand SobelDirectionCommand
+        {
+            get
+            {
+                if (_sobelDirectionCommand == null)
+                    _sobelDirectionCommand = new RelayCommand(SobelDirection);
+                return _sobelDirectionCommand;
+            }
+        }
+
+        private void SobelDirection(object parameter)
+        {
+            if (InitialImage == null)
+            {
+                MessageBox.Show("Please add an image!");
+                return;
+            }
+
+            ClearProcessedCanvas(parameter as Canvas);
+
+            if (ColorInitialImage != null)
+            {
+                MessageBox.Show("Please use a grayscale image!");
+                return;
+            }
+
+            List<string> labels = new List<string>()
+    {
+       "Threshold",
+        "Target Angle)",
+        "Angle Tolerance"
+    };
+
+            DialogWindow window = new DialogWindow(_mainVM, labels);
+            window.ShowDialog();
+
+            List<double> values = window.GetValues();
+
+            if (values == null || values.Count != 3)
+            {
+                return;
+            }
+
+            float threshold = (float)values[0];
+            float targetAngle = (float)values[1];
+            float angleTolerance = (float)values[2];
+
+            if (threshold < 0)
+            {
+                MessageBox.Show("Threshold must be a positive value!");
+                return;
+            }
+
+            if (angleTolerance < 0 || angleTolerance > 180)
+            {
+                MessageBox.Show("Angle tolerance must be between 0 and 180 degrees!");
+                return;
+            }
+
+            if (GrayInitialImage != null)
+            {
+                GrayProcessedImage = Filters.SobelEdgeDetectionWithDirection(
+                    GrayInitialImage,
+                    threshold,
+                    targetAngle,
+                    angleTolerance);
+                ProcessedImage = Convert(GrayProcessedImage);
+            }
+        }
+
     }
 }

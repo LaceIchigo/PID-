@@ -111,12 +111,115 @@ namespace Algorithms.Sections
             {
 
                 s = s + histogram[k];
-                k = k++;
+                k++;
 
             }
 
             return k;
         }
+
+        public static Image<Gray, byte> SobelEdgeDetectionWithDirection(
+         Image<Gray, byte> grayImage,
+         float threshold,
+         float targetAngleDegrees,
+         float angleTolerance = 22.5f)
+        {
+           
+            float[,] Sx = new float[,] {
+                { -1, 0, 1 },
+                { -2, 0, 2 },
+                { -1, 0, 1 }
+            };
+
+            float[,] Sy = new float[,] {
+                { -1, -2, -1 },
+                {  0,  0,  0 },
+                {  1,  2,  1 }
+            };
+
+         
+            float targetAngleRad = targetAngleDegrees * (float)Math.PI / 180f;
+
+           
+            Image<Gray, byte> result = new Image<Gray, byte>(grayImage.Size);
+
+          
+            Image<Gray, byte> bordered = Border(grayImage, 3, 3);
+            int offset = 1; 
+
+            for (int y = 0; y < grayImage.Height; y++)
+            {
+                for (int x = 0; x < grayImage.Width; x++)
+                {
+               
+                    float fx = 0;
+                    for (int ky = -1; ky <= 1; ky++)
+                    {
+                        for (int kx = -1; kx <= 1; kx++)
+                        {
+                            int pixelVal = bordered.Data[y + offset + ky, x + offset + kx, 0];
+                            fx += pixelVal * Sx[ky + 1, kx + 1];
+                        }
+                    }
+
+                  
+                    float fy = 0;
+                    for (int ky = -1; ky <= 1; ky++)
+                    {
+                        for (int kx = -1; kx <= 1; kx++)
+                        {
+                            int pixelVal = bordered.Data[y + offset + ky, x + offset + kx, 0];
+                            fy += pixelVal * Sy[ky + 1, kx + 1];
+                        }
+                    }
+
+                    float gradientMagnitude = (float)Math.Sqrt(fx * fx + fy * fy);
+
+                 
+                    if (gradientMagnitude > threshold)
+                    {
+                        
+                        float angle = (float)Math.Atan2(fy, fx);
+
+                        
+                        float normalizedAngle = angle;
+                        if (normalizedAngle < 0)
+                            normalizedAngle += 2 * (float)Math.PI;
+
+                        float normalizedTarget = targetAngleRad;
+                        if (normalizedTarget < 0)
+                            normalizedTarget += 2 * (float)Math.PI;
+
+                        float angleDiff = Math.Abs(normalizedAngle - normalizedTarget);
+
+                        if (angleDiff > Math.PI)
+                            angleDiff = 2 * (float)Math.PI - angleDiff;
+
+                     
+                        float toleranceRad = angleTolerance * (float)Math.PI / 180f;
+
+                       
+                        if (angleDiff <= toleranceRad)
+                        {
+                            result.Data[y, x, 0] = 255; 
+                        }
+                        else
+                        {
+                            result.Data[y, x, 0] = 0; 
+                        }
+                    }
+                    else
+                    {
+                        result.Data[y, x, 0] = 0; 
+                    }
+                }
+            }
+
+            return result;
+        }
+
+
+
 
 
         public static Image<Gray, byte> ApplyMedianFilter(Image<Gray, byte> grayImage, int kSize)
