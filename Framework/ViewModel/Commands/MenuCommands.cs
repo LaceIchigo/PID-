@@ -1,23 +1,21 @@
-﻿using Emgu.CV;
+﻿using Algorithms.Sections;
+using Algorithms.Tools;
+using Algorithms.Utilities;
+using Emgu.CV;
 using Emgu.CV.Structure;
-
-using System.Windows;
+using Framework.View;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing.Imaging;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Controls;
-using System.Collections.Generic;
-
-using Framework.View;
+using static Framework.Converters.ImageConverter;
 using static Framework.Utilities.DataProvider;
 using static Framework.Utilities.DrawingHelper;
 using static Framework.Utilities.FileHelper;
-using static Framework.Converters.ImageConverter;
-
-using Algorithms.Sections;
-using Algorithms.Tools;
-using Algorithms.Utilities;
 
 namespace Framework.ViewModel
 {
@@ -948,8 +946,246 @@ namespace Framework.ViewModel
 
         #endregion
 
+       
+      
+
         #region Morphological operations
+
+        #region Morphological Gradient
+        private ICommand _morphologicalGradientCommand;
+
+        public ICommand MorphologicalGradientCommand
+        {
+            get
+            {
+                if (_morphologicalGradientCommand == null)
+                    _morphologicalGradientCommand = new RelayCommand(MorphologicalGradient);
+                return _morphologicalGradientCommand;
+            }
+        }
+
+        private void MorphologicalGradient(object parameter)
+        {
+            if (InitialImage == null)
+            {
+                MessageBox.Show("Please add an image!");
+                return;
+            }
+
+            ClearProcessedCanvas(parameter as Canvas);
+
+            if (ColorInitialImage != null)
+            {
+                MessageBox.Show("Morphological gradient can only be applied to grayscale images!");
+                return;
+            }
+
+     
+            List<string> labels = new List<string>()
+    {
+        "Mask Height ",
+        "Mask Width "
+    };
+
+            DialogWindow window = new DialogWindow(_mainVM, labels);
+            window.ShowDialog();
+
+            List<double> values = window.GetValues();
+
+            if (values == null || values.Count != 2)
+            {
+                return;
+            }
+
+            int h = (int)values[0];
+            int w = (int)values[1];
+
+           
+            if (h <= 0 || w <= 0)
+            {
+                MessageBox.Show("Mask dimensions must be positive values!");
+                return;
+            }
+
+            if (h % 2 == 0 || w % 2 == 0)
+            {
+                MessageBox.Show("Mask dimensions should be odd numbers ");
+                return;
+            }
+
+            if (GrayInitialImage != null)
+            {
+                try
+                {
+                
+                    GrayProcessedImage = MorphologicalOperations.MorphologicalGradient(GrayInitialImage, h, w);
+                    ProcessedImage = Convert(GrayProcessedImage);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error applying morphological gradient: {ex.Message}");
+                }
+            }
+        }
         #endregion
+
+        #region Dilate (Grayscale)
+        private ICommand _dilateGrayCommand;
+
+        public ICommand DilateGrayCommand
+        {
+            get
+            {
+                if (_dilateGrayCommand == null)
+                    _dilateGrayCommand = new RelayCommand(DilateGray);
+                return _dilateGrayCommand;
+            }
+        }
+
+        private void DilateGray(object parameter)
+        {
+            if (InitialImage == null)
+            {
+                MessageBox.Show("Please add an image!");
+                return;
+            }
+
+            ClearProcessedCanvas(parameter as Canvas);
+
+            if (ColorInitialImage != null)
+            {
+                MessageBox.Show("Grayscale dilation can only be applied to grayscale images!");
+                return;
+            }
+
+           
+            List<string> labels = new List<string>()
+    {
+        "Mask Height (odd number, e.g., 3, 5, 7)",
+        "Mask Width (odd number, e.g., 3, 5, 7)"
+    };
+
+            DialogWindow window = new DialogWindow(_mainVM, labels);
+            window.ShowDialog();
+
+            List<double> values = window.GetValues();
+
+            if (values == null || values.Count != 2)
+            {
+                return;
+            }
+
+            int h = (int)values[0];
+            int w = (int)values[1];
+
+            if (h <= 0 || w <= 0)
+            {
+                MessageBox.Show("Mask dimensions must be positive values!");
+                return;
+            }
+
+            if (h % 2 == 0 || w % 2 == 0)
+            {
+                MessageBox.Show("Mask dimensions should be odd numbers (e.g., 3, 5, 7)!");
+                return;
+            }
+
+            if (GrayInitialImage != null)
+            {
+                try
+                {
+                 
+                    GrayProcessedImage = MorphologicalOperations.GrayDilate(GrayInitialImage, h, w);
+                    ProcessedImage = Convert(GrayProcessedImage);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error applying dilation: {ex.Message}");
+                }
+            }
+        }
+        #endregion
+
+        #region Erode (Grayscale)
+        private ICommand _erodeGrayCommand;
+
+        public ICommand ErodeGrayCommand
+        {
+            get
+            {
+                if (_erodeGrayCommand == null)
+                    _erodeGrayCommand = new RelayCommand(ErodeGray);
+                return _erodeGrayCommand;
+            }
+        }
+
+        private void ErodeGray(object parameter)
+        {
+            if (InitialImage == null)
+            {
+                MessageBox.Show("Please add an image!");
+                return;
+            }
+
+            ClearProcessedCanvas(parameter as Canvas);
+
+            if (ColorInitialImage != null)
+            {
+                MessageBox.Show("Grayscale erosion can only be applied to grayscale images!");
+                return;
+            }
+
+           
+            List<string> labels = new List<string>()
+    {
+        "Mask Height ",
+        "Mask Width "
+    };
+
+            DialogWindow window = new DialogWindow(_mainVM, labels);
+            window.ShowDialog();
+
+            List<double> values = window.GetValues();
+
+            if (values == null || values.Count != 2)
+            {
+                return;
+            }
+
+            int h = (int)values[0];
+            int w = (int)values[1];
+
+          
+            if (h <= 0 || w <= 0)
+            {
+                MessageBox.Show("Mask dimensions must be positive values!");
+                return;
+            }
+
+            if (h % 2 == 0 || w % 2 == 0)
+            {
+                MessageBox.Show("Mask dimensions should be odd numbers");
+                return;
+            }
+
+            if (GrayInitialImage != null)
+            {
+                try
+                {
+                   
+                    GrayProcessedImage = MorphologicalOperations.GrayErode(GrayInitialImage, h, w);
+                    ProcessedImage = Convert(GrayProcessedImage);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error applying erosion: {ex.Message}");
+                }
+            }
+        }
+        #endregion
+
+        #endregion
+
 
         #region Geometric transformations
         #endregion

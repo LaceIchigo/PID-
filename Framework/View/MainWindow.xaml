@@ -243,10 +243,18 @@
             </MenuItem>
             </MenuItem>
 
-            <MenuItem Header="Morphological operations"
-                      Background="{Binding Path=Theme.MenuItemBackgroundColor}"
-                      Foreground="{Binding Path=Theme.MenuItemForegroundColor}">
-
+           
+            <MenuItem Header="_Morphological Operations">
+                <MenuItem Header="_Morphological Gradient" 
+              Command="{Binding MenuCommands.MorphologicalGradientCommand}"
+              CommandParameter="{Binding ElementName=processedImageCanvas}"/>
+                <Separator/>
+                <MenuItem Header="_Dilate (Grayscale)" 
+              Command="{Binding MenuCommands.DilateGrayCommand}"
+              CommandParameter="{Binding ElementName=processedImageCanvas}"/>
+                <MenuItem Header="_Erode (Grayscale)" 
+              Command="{Binding MenuCommands.ErodeGrayCommand}"
+              CommandParameter="{Binding ElementName=processedImageCanvas}"/>
             </MenuItem>
 
             <MenuItem Header="Geometric transformations"

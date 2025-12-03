@@ -8,6 +8,39 @@ namespace Algorithms.Sections
 {
     public class Filters
     {
+        public static Image<Bgr, byte> Border(Image<Bgr, byte> grayImage, int borderH, int borderW)
+        {
+            int left = borderW / 2;
+            int top = borderH / 2;
+            int right = borderW - left;
+            int bottom = borderH - top;
+            
+            int newWidth = grayImage.Width + left + right;
+            int newHeight = grayImage.Height + top + bottom;
+
+            Image<Bgr, byte> result = new Image<Bgr, byte>(newWidth, newHeight);
+
+            for (int y = 0; y < newHeight; y++)
+            {
+                int srcY = y - top;
+                if (srcY < 0) srcY = 0;
+                else if (srcY >= grayImage.Height) srcY = grayImage.Height - 1;
+
+                for (int x = 0; x < newWidth; x++)
+                {
+                    int srcX = x - left;
+                    if (srcX < 0) srcX = 0;
+                    else if (srcX >= grayImage.Width) srcX = grayImage.Width - 1;
+
+                    result.Data[y, x, 0] = grayImage.Data[srcY, srcX, 0];
+                    result.Data[y, x, 1] = grayImage.Data[srcY, srcX, 1];
+                    result.Data[y, x, 2] = grayImage.Data[srcY, srcX, 2];
+                }
+            }
+
+            return result;
+        }
+
         public static Image<Gray, byte> Border(Image<Gray, byte> grayImage, int borderH, int borderW)
         {
             int halfBorderW = borderW / 2;
