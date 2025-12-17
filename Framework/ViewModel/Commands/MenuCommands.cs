@@ -1186,6 +1186,82 @@ namespace Framework.ViewModel
 
         #endregion
 
+        #region Segmentation
+        private ICommand _houghLinesCommand;
+        public ICommand HoughLinesCommand
+        {
+            get
+            {
+                if (_houghLinesCommand == null)
+                    _houghLinesCommand = new RelayCommand(HoughLines);
+                return _houghLinesCommand;
+            }
+        }
+
+        private void HoughLines(object parameter)
+        {
+            if (InitialImage == null)
+            {
+                MessageBox.Show("Please add an image!");
+                return;
+            }
+
+            Canvas initialCanvas = null;
+            if (parameter is object[] arr && arr.Length >= 1)
+            {
+                initialCanvas = arr[0] as Canvas;
+            }
+            else
+            {
+                initialCanvas = parameter as Canvas;
+            }
+
+            if (ColorInitialImage != null)
+            {
+                MessageBox.Show("Hough segmentation is implemented only for grayscale images!");
+                return;
+            }
+
+            if (GrayInitialImage != null)
+            {
+                List<string> labels = new List<string>()
+                {
+                    "Edge threshold T (Sobel) [0, 255]"
+                };
+
+                DialogWindow window = new DialogWindow(_mainVM, labels);
+                window.ShowDialog();
+
+                List<double> values = window.GetValues();
+                if (values == null || values.Count < 1) return;
+
+                int edgeT = (int)values[0];
+
+                if (edgeT < 0 || edgeT > 255)
+                {
+                    MessageBox.Show("Please select a valid edge threshold (0..255)!");
+                    return;
+                }
+
+                var edges = Filters.SobelEdgeDetectionWithDirection(GrayInitialImage, edgeT, 0, 180);
+                var accImg = Segmentation.Hough3Quadrants(edges, out var lineEndpoints);
+                GrayProcessedImage = accImg;
+                ProcessedImage = Convert(GrayProcessedImage);
+
+                if (initialCanvas != null)
+                {
+                    RemoveUiElements(initialCanvas);
+                    foreach (var seg in lineEndpoints)
+                    {
+                        var p1 = seg.Item1; var p2 = seg.Item2;
+                        System.Windows.Point a = new System.Windows.Point(p1.Item1, p1.Item2);
+                        System.Windows.Point b = new System.Windows.Point(p2.Item1, p2.Item2);
+                        DrawLine(initialCanvas, a, b, 1, Brushes.LimeGreen, ScaleValue);
+                    }
+                }
+            }
+        }
+        #endregion
 
         #region Geometric transformations
         #endregion

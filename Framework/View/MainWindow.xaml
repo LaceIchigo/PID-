@@ -264,8 +264,30 @@
             </MenuItem>
 
             <MenuItem Header="Segmentation"
+                      
                       Background="{Binding Path=Theme.MenuItemBackgroundColor}"
                       Foreground="{Binding Path=Theme.MenuItemForegroundColor}">
+
+                <!-- In MainWindow.xaml, within your menu structure -->
+                <MenuItem Header="_Hough Transform">
+                    <!-- Main Hough Transform command -->
+                    <MenuItem Header="_Hough Line Detection" 
+              Command="{Binding MenuCommands.HoughLinesTransformCommand}"
+              CommandParameter="{Binding ElementName=ProcessedCanvas}"
+              ToolTip="Complete Hough line detection: Sobel → Hough → Display → Draw lines"/>
+
+                    <!-- Optional: Separate steps if you want -->
+                    <Separator/>
+                    <MenuItem Header="_Only Sobel Edges" 
+              Command="{Binding MenuCommands.SobelOnlyCommand}"
+              CommandParameter="{Binding ElementName=ProcessedCanvas}"
+              ToolTip="Just apply Sobel edge detection"/>
+
+                    <MenuItem Header="_Only Hough Accumulator" 
+              Command="{Binding MenuCommands.HoughAccumulatorOnlyCommand}"
+              CommandParameter="{Binding ElementName=ProcessedCanvas}"
+              ToolTip="Just build and display Hough accumulator"/>
+                </MenuItem>
 
             </MenuItem>
 
